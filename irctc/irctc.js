@@ -17,6 +17,9 @@ const CREDS = require('../creds');
 		width: 1280,
 		height: 800
 	});
+// ***********************SIGN IN****************************
+
+	// *********************//selectors//*************************
 	const captchaContainer = '#nlpCaptchaContainer';
 	const captchaSel = 'img#captchaImg';
 	const captchaAnsSel = 'input#nlpAnswer';
@@ -26,80 +29,70 @@ const CREDS = require('../creds');
 	const usernameSel = 'input#userId';
 	const pwdSel = 'input#pwd';
 
-	const usernameCred = CREDS.irctcUn;
-	const pwdCred = CREDS.irctcPwd;
-
-  // newPage
-  const fromSel = '#origin > span > input'
-
-  const toSel = '#destination > span > input'
-
-  const dateSel = 'p-calendar > span.ui-calendar > input'
-
-  const submitSel = 'button.search_btn'
-
-
-  const from = 'TIRUCHCHIRAPALI - TPJ'
-  const to = 'CHENNAI EGMORE - MS'
-  const date = '15-10-2018'
-
-  // newPage
-
-
+	// *********************//actions//*************************
+	//=> click hamburger
 	await page.click('.h_menu_drop_button.hidden-xs');
 	await page.click('#slide-menu > p-sidebar > div > nav > div > label > span');
+	//=>type username
+	await page.waitForSelector(usernameSel);
+	await page.type(usernameSel, CREDS.irctcUn);
+	//=>type password
+	await page.waitForSelector(pwdSel);
+	await page.type(pwdSel, CREDS.irctcPwd);
+	//=>get captcha url
 	await page.waitForSelector(captchaContainer);
 	await page.waitForSelector(captchaSel);
 	getCaptchaImg = await page.$eval(captchaSel, el => el.src);
-console.log(getCaptchaImg);
+	//=>render in console using terminalImage
 	const { body } = await got(getCaptchaImg, { encoding: null });
 	console.log(await terminalImage.buffer(body));
-
+	//=>ask user to enter captcha using inquirer and click 'submit'
 	async function run() {
 		let answer = await inquirer.prompt([
 			{
 				type: 'input',
-				name: 'otp',
-				message: 'otp please'
+				name: 'captcha',
+				message: 'captcha please'
 			}
 		]);
-
 		await page.waitForSelector(captchaAnsSel);
-		await page.type(captchaAnsSel, answer.otp);
-		return answer;
+		await page.type(captchaAnsSel, answer.captcha);
 	}
-
-	await page.waitForSelector(usernameSel);
-	await page.type(usernameSel, usernameCred);
-
-	await page.waitForSelector(pwdSel);
-	await page.type(pwdSel, pwdCred);
 	let x = await run();
 	await page.click(captchaSubmit);
 
-  //newPage
-  //type from station
-  await page.waitForSelector(fromSel)
-  await page.type(fromSel, from);
-  //type to station
-  await page.waitForSelector(toSel)
-  await page.type(toSel, to);
+// ***********************TRAIN SEARCH****************************
 
-  await page.keyboard.press('Tab')
-  //select date
-  await page.waitForSelector(dateSel)
-  await page.type(dateSel, date);
-  //click submit
-  await page.keyboard.press('Tab')
-  await page.click(submitSel);
-  //newPage
+	// *********************//selectors//*************************
+	const fromSel = '#origin > span > input';
+	const toSel = '#destination > span > input';
+	const dateSel = 'p-calendar > span.ui-calendar > input';
+	const submitSel = 'button.search_btn';
 
-  //wait for page navigation
-  await page.waitForNavigation();
-
-	//take a screenshot
+	// *********************//actions//*************************
+	const from = 'TIRUCHCHIRAPALI - TPJ';
+	const to = 'CHENNAI EGMORE - MS';
+	const date = '15-10-2018';
+	//=>type from station
+	await page.waitForSelector(fromSel);
+	await page.type(fromSel, from);
+	//=>type to station
+	await page.waitForSelector(toSel);
+	await page.type(toSel, to);
+	//=> press tab to escape the dateSel
+	await page.keyboard.press('Tab');
+	//=>select date
+	await page.waitForSelector(dateSel);
+	await page.type(dateSel, date);
+	//=> press tab again to escape the dateSel
+	await page.keyboard.press('Tab');
+	//=>click submit
+	await page.click(submitSel);
+	//=>wait for page navigation
+	await page.waitForNavigation();
+	//=>take a screenshot
 	await page.screenshot({ path: `screengrab_${Date.now()}.png`, fullPage: 0 });
-	//log completion
+	//=>log completion
 	console.log('all done ⚡️');
 
 	await browser.close();
