@@ -2,6 +2,7 @@
 // uses puppeteer to login to twitter and take screenshot
 // *********************************************************
 const puppeteer = require('puppeteer');
+const CREDS = require('../creds');
 
 (async () => {
   const browser = await puppeteer.launch();
@@ -18,8 +19,8 @@ const puppeteer = require('puppeteer');
 
   const submitSel = '#page-container > div > div.signin-wrapper > form > div.clearfix > button'
 
-  const username = 'xxx'
-  const password = 'xxx'
+  const username = CREDS.twitterUn
+  const password = CREDS.twitterPwd
 
   //type username
   await page.waitForSelector(usernameSel)
